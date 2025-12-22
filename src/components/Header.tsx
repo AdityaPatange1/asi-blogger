@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PenLine, BookOpen, Home } from "lucide-react";
+import { PenLine, BookOpen, Home, Users } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Header() {
     { href: "/", label: "Home", icon: Home },
     { href: "/blogs", label: "Blog Collection", icon: BookOpen },
     { href: "/create", label: "Create Blog", icon: PenLine },
+    { href: "/about", label: "About", icon: Users },
   ];
 
   return (
