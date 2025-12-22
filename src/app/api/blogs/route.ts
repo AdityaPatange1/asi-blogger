@@ -26,7 +26,20 @@ export async function GET(request: NextRequest) {
     const query: any = {};
 
     if (search) {
-      query.$text = { $search: search };
+      // Simple keyword-based regex search across multiple fields
+      const searchRegex = new RegExp(search.split(/\s+/).map(word =>
+        word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      ).join('|'), 'i');
+
+      query.$or = [
+        { title: searchRegex },
+        { content: searchRegex },
+        { summary: searchRegex },
+        { topic: searchRegex },
+        { topicCategory: searchRegex },
+        { tags: searchRegex },
+        { authorName: searchRegex },
+      ];
     }
 
     if (category) {
@@ -102,7 +115,7 @@ Tags: ${tags?.join(', ') || 'None specified'}
 
 Requirements:
 1. Create a compelling title that captures the essence of the topic
-2. Write a brief summary (2-3 sentences, max 400 characters)
+2. Write a brief summary (2-3 sentences, max 400 characters) ending with a full stop
 3. Write the full blog content with:
    - An engaging introduction
    - Well-organized sections with clear headings (use ## for main sections, ### for subsections)
@@ -112,6 +125,12 @@ Requirements:
 4. Use markdown formatting for better readability
 5. Be informative, accurate, and engaging
 6. Include relevant insights and practical information
+7. IMPORTANT PUNCTUATION RULE: Every line must end with a full stop (period), including:
+   - All bullet points and list items must end with a full stop
+   - All subtitles (## and ###) must end with a full stop
+   - All paragraphs must end with a full stop
+   - The summary must end with a full stop
+   - Exception: Main title (h1) should NOT have a full stop
 
 Respond in the following JSON format exactly:
 {

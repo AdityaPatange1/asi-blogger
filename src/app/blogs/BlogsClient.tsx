@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Search,
@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import BlogCard from '@/components/BlogCard';
 import { getAllCategories } from '@/data/topics';
-import { debounce } from '@/lib/utils';
 
 interface Blog {
   _id: string;
@@ -65,13 +64,21 @@ export default function BlogsClient() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const categories = getAllCategories();
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchBlogs = useCallback(async (page = 1) => {
+  const fetchBlogs = async (page = 1, search: string, category: string, sort: string) => {
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
     setError('');
 
     try {
-      const [sortField, sortOrder] = sortBy.split('-');
+      const [sortField, sortOrder] = sort.split('-');
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '12',
@@ -79,14 +86,16 @@ export default function BlogsClient() {
         sortOrder: sortOrder,
       });
 
-      if (searchQuery.trim()) {
-        params.set('search', searchQuery.trim());
+      if (search.trim()) {
+        params.set('search', search.trim());
       }
-      if (selectedCategory) {
-        params.set('category', selectedCategory);
+      if (category) {
+        params.set('category', category);
       }
 
-      const response = await fetch(`/api/blogs?${params.toString()}`);
+      const response = await fetch(`/api/blogs?${params.toString()}`, {
+        signal: abortControllerRef.current.signal
+      });
       if (!response.ok) throw new Error('Failed to fetch blogs');
 
       const data = await response.json();
@@ -94,29 +103,40 @@ export default function BlogsClient() {
       setPagination(data.pagination);
 
       const newParams = new URLSearchParams();
-      if (searchQuery.trim()) newParams.set('search', searchQuery.trim());
-      if (selectedCategory) newParams.set('category', selectedCategory);
-      if (sortBy !== 'createdAt-desc') newParams.set('sort', sortBy);
+      if (search.trim()) newParams.set('search', search.trim());
+      if (category) newParams.set('category', category);
+      if (sort !== 'createdAt-desc') newParams.set('sort', sort);
       if (page > 1) newParams.set('page', page.toString());
 
       const newUrl = newParams.toString() ? `?${newParams.toString()}` : '/blogs';
       window.history.replaceState({}, '', newUrl);
     } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        // Request was cancelled, ignore
+        return;
+      }
       setError(err instanceof Error ? err.message : 'Failed to load blogs');
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, selectedCategory, sortBy]);
+  };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedFetch = useCallback(
-    debounce(() => fetchBlogs(1), 500),
-    [fetchBlogs]
-  );
-
+  // Debounced search effect
   useEffect(() => {
-    debouncedFetch();
-  }, [searchQuery, selectedCategory, sortBy, debouncedFetch]);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      fetchBlogs(1, searchQuery, selectedCategory, sortBy);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [searchQuery, selectedCategory, sortBy]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -132,7 +152,7 @@ export default function BlogsClient() {
   };
 
   const handlePageChange = (page: number) => {
-    fetchBlogs(page);
+    fetchBlogs(page, searchQuery, selectedCategory, sortBy);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -380,7 +400,7 @@ export default function BlogsClient() {
         {error ? (
           <div style={{ textAlign: 'center', padding: '48px 0' }}>
             <p style={{ color: '#ef4444', marginBottom: '16px' }}>{error}</p>
-            <button onClick={() => fetchBlogs(1)} className="btn-primary">
+            <button onClick={() => fetchBlogs(1, searchQuery, selectedCategory, sortBy)} className="btn-primary">
               Try Again
             </button>
           </div>
