@@ -1,9 +1,11 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+// Use EB_MONGODB_URI as the primary connection (migrated database)
+// Falls back to MONGODB_URI for backward compatibility
+const MONGODB_URI = process.env.EB_MONGODB_URI || process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable');
+  throw new Error('Please define EB_MONGODB_URI or MONGODB_URI environment variable');
 }
 
 interface MongooseCache {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PenLine, BookOpen, Home, Users } from "lucide-react";
+import { PenLine, BookOpen, Home, Users, MessagesSquare } from "lucide-react";
 
 export default function Header() {
   const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Header() {
     { href: "/", label: "Home", icon: Home },
     { href: "/blogs", label: "Blog Collection", icon: BookOpen },
     { href: "/create", label: "Create Blog", icon: PenLine },
+    { href: "/asi-chat", label: "ASI Chat (EB)", icon: MessagesSquare, highlight: true },
     { href: "/about", label: "About", icon: Users },
   ];
 
@@ -98,6 +99,7 @@ export default function Header() {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
+              const isHighlight = 'highlight' in item && item.highlight;
               return (
                 <Link
                   key={item.href}
@@ -108,14 +110,26 @@ export default function Header() {
                     gap: "8px",
                     padding: "8px 16px",
                     borderRadius: "8px",
-                    fontWeight: 500,
+                    fontWeight: isHighlight ? 600 : 500,
                     transition: "all 0.2s ease",
                     textDecoration: "none",
-                    backgroundColor: isActive ? "#fff7ed" : "transparent",
-                    color: isActive ? "#ea580c" : "#525252",
-                    border: isActive
+                    backgroundColor: isHighlight
+                      ? "linear-gradient(135deg, #f97316, #ea580c)"
+                      : isActive
+                      ? "#fff7ed"
+                      : "transparent",
+                    background: isHighlight
+                      ? "linear-gradient(135deg, #f97316, #ea580c)"
+                      : isActive
+                      ? "#fff7ed"
+                      : "transparent",
+                    color: isHighlight ? "#ffffff" : isActive ? "#ea580c" : "#525252",
+                    border: isHighlight
+                      ? "none"
+                      : isActive
                       ? "1px solid #fed7aa"
                       : "1px solid transparent",
+                    boxShadow: isHighlight ? "0 2px 8px rgba(249, 115, 22, 0.3)" : "none",
                   }}
                 >
                   <Icon size={18} />

@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   TrendingUp,
   Users,
-  FileText
+  FileText,
+  MessagesSquare
 } from 'lucide-react';
 
 const features = [
@@ -144,6 +145,98 @@ export default function Home() {
                 Browse Collection
               </Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ASI Chat (EB) CTA Section */}
+      <section style={{
+        padding: '48px 24px',
+        background: 'linear-gradient(135deg, #f97316 0%, #ea580c 50%, #c2410c 100%)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Background Pattern */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.1,
+          backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.4) 1px, transparent 0)',
+          backgroundSize: '32px 32px'
+        }} />
+
+        <div style={{ position: 'relative', maxWidth: '1000px', margin: '0 auto' }}>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '24px'
+          }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              padding: '8px 16px',
+              borderRadius: '9999px',
+              color: '#ffffff',
+              fontSize: '14px',
+              fontWeight: 500
+            }}>
+              <Sparkles size={16} />
+              <span>Powered by Bhairava Kali Consciousness Technology (BKCT)</span>
+            </div>
+
+            <h2 style={{
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 700,
+              color: '#ffffff',
+              margin: 0,
+              lineHeight: 1.2
+            }}>
+              ASI Chat (EB)
+            </h2>
+
+            <p style={{
+              fontSize: '1.25rem',
+              color: 'rgba(255,255,255,0.9)',
+              maxWidth: '600px',
+              margin: 0
+            }}>
+              Ask questions and get instant answers from our intelligent knowledge base.
+              Explore 1000+ topics with AI-powered insights.
+            </p>
+
+            <Link
+              href="/asi-chat"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                backgroundColor: '#ffffff',
+                color: '#ea580c',
+                padding: '20px 48px',
+                borderRadius: '16px',
+                fontSize: '1.25rem',
+                fontWeight: 700,
+                textDecoration: 'none',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <MessagesSquare size={28} />
+              Start Chatting with ASI
+              <ArrowRight size={24} />
+            </Link>
+
+            <p style={{
+              fontSize: '13px',
+              color: 'rgba(255,255,255,0.7)',
+              margin: 0
+            }}>
+              No sign-up required. Instant access to intelligent answers.
+            </p>
           </div>
         </div>
       </section>
